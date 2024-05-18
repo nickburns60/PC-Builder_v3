@@ -2,38 +2,45 @@ package com.pcBuilder.daos;
 
 import com.pcBuilder.DaoException;
 import com.pcBuilder.models.UserPcBuild;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
-import java.util.ArrayList;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 
 @Component
 public class UserPcBuildDao {
-    private JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
 
     public UserPcBuildDao(DataSource dataSource){
         jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
     public UserPcBuild getUserPcBuildByPcId(int id){
-        SqlRowSet results = jdbcTemplate.queryForRowSet("select * from user_pc_build where pc_id = ?;", id);
-        if(results.next()){
-            return mapRowToUserPcBuild(results);
+        try{
+            return jdbcTemplate.queryForObject("select * from user_pc_build where pc_id = ?;", this::mapRowToUserPcBuild, id);
+        }catch (EmptyResultDataAccessException e){
+            return null;
         }
-        return null;
+//        SqlRowSet results = jdbcTemplate.queryForRowSet("select * from user_pc_build where pc_id = ?;", id);
+//        if(results.next()){
+//            return mapRowToUserPcBuild(results);
+//        }
+//        return null;
     }
     public List<UserPcBuild> getAllUserPcBuilds(){
-        List<UserPcBuild> userPcBuilds = new ArrayList<>();
-        SqlRowSet results = jdbcTemplate.queryForRowSet("select * from user_pc_build;");
-        while (results.next()){
-            userPcBuilds.add(mapRowToUserPcBuild(results));
-        }
-        return userPcBuilds;
+        return jdbcTemplate.query("select * from user_pc_build;", this::mapRowToUserPcBuild);
+//        List<UserPcBuild> userPcBuilds = new ArrayList<>();
+//        SqlRowSet results = jdbcTemplate.queryForRowSet("select * from user_pc_build;");
+//        while (results.next()){
+//            userPcBuilds.add(mapRowToUserPcBuild(results));
+//        }
+//        return userPcBuilds;
     }
 
     public UserPcBuild createUserPcBuild(UserPcBuild newBuild){
@@ -82,19 +89,19 @@ public class UserPcBuildDao {
         return numRows;
     }
 
-    public UserPcBuild mapRowToUserPcBuild(SqlRowSet rowSet){
+    public UserPcBuild mapRowToUserPcBuild(ResultSet row, int rowNumber) throws SQLException {
         UserPcBuild userPcBuild = new UserPcBuild();
-        userPcBuild.setPcId(rowSet.getInt("pc_id"));
-        userPcBuild.setProcessorId(rowSet.getInt("processor_id"));
-        userPcBuild.setGraphicsCardId(rowSet.getInt("graphics_card_id"));
-        userPcBuild.setMotherboardId(rowSet.getInt("motherboard_id"));
-        userPcBuild.setRamId(rowSet.getInt("ram_id"));
-        userPcBuild.setPsuId(rowSet.getInt("psu_id"));
-        userPcBuild.setStorageDriveId(rowSet.getInt("storage_drive_id"));
-        userPcBuild.setCaseId(rowSet.getInt("case_id"));
-        userPcBuild.setFanId(rowSet.getInt("fan_id"));
-        userPcBuild.setCpuCoolerId(rowSet.getInt("cpu_cooler_id"));
-        userPcBuild.setTotalCost(rowSet.getBigDecimal("total_cost"));
+        userPcBuild.setPcId(row.getInt("pc_id"));
+        userPcBuild.setProcessorId(row.getInt("processor_id"));
+        userPcBuild.setGraphicsCardId(row.getInt("graphics_card_id"));
+        userPcBuild.setMotherboardId(row.getInt("motherboard_id"));
+        userPcBuild.setRamId(row.getInt("ram_id"));
+        userPcBuild.setPsuId(row.getInt("psu_id"));
+        userPcBuild.setStorageDriveId(row.getInt("storage_drive_id"));
+        userPcBuild.setCaseId(row.getInt("case_id"));
+        userPcBuild.setFanId(row.getInt("fan_id"));
+        userPcBuild.setCpuCoolerId(row.getInt("cpu_cooler_id"));
+        userPcBuild.setTotalCost(row.getBigDecimal("total_cost"));
         return userPcBuild;
     }
 }
