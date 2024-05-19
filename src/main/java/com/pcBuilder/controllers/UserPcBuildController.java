@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+//  May attempt to add compatibility logic at a later time
 /**
  * Primary goals:
  * <p>
@@ -31,7 +32,7 @@ public class UserPcBuildController {
     }
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("")
-    public UserPcBuild addBuild(@Valid @RequestBody UserPcBuild build){
+    public UserPcBuild createBuild(@Valid @RequestBody UserPcBuild build){
         return userPcBuildDao.createUserPcBuild(build);
     }
     @PutMapping("/{id}")

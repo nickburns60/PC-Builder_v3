@@ -1,5 +1,8 @@
 package com.pcBuilder.daos;
 
+import com.pcBuilder.DaoException;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import com.pcBuilder.viewmodels.CpuCoolerWithBrand;
@@ -41,6 +44,14 @@ public class CpuCoolerDao {
         return coolers;
     }
 
+    public List<CpuCooler> getAllCoolers(){
+        List<CpuCooler> coolers = new ArrayList<>();
+        SqlRowSet results = jdbcTemplate.queryForRowSet("select * from cpu_cooler;");
+        while (results.next()){
+            coolers.add(mapRowToCase(results));
+        }
+        return coolers;
+    }
 
     public CpuCooler getCoolerById(int coolerId){
         SqlRowSet results = jdbcTemplate.queryForRowSet("select * from cpu_cooler where cpu_cooler_id = ?;", coolerId);
@@ -48,6 +59,49 @@ public class CpuCoolerDao {
             return mapRowToCase(results);
         }
         return null;
+    }
+
+    public CpuCooler createCpuCooler(CpuCooler newCooler){
+        try{
+            int coolerId = jdbcTemplate.queryForObject("insert into cpu_cooler (brand_id, product_name, model, cooler_type, " +
+                    "size_mm, color, rgb, price) values" +
+                    "(?,?,?,?,?,?,?,?) returning cpu_cooler_id", int.class, newCooler.getBrandId(), newCooler.getProductName(), newCooler.getModel(),
+                    newCooler.getCoolerType(), newCooler.getSizeMm(), newCooler.getColor(), newCooler.isRgb(), newCooler.getPrice());
+            return getCoolerById(coolerId);
+        }catch (CannotGetJdbcConnectionException e){
+            throw new DaoException("Unable to connect to database or server", e);
+        }catch (DataIntegrityViolationException e){
+            throw new DaoException("Error creating brand", e);
+        }
+    }
+    public CpuCooler updateCooler(CpuCooler cpuCooler){
+        CpuCooler cooler = null;
+        try{
+            int numOfRows = jdbcTemplate.update("update cpu_cooler set brand_id=?, product_name=?, model=?, cooler_type=?, size_mm=?, color=?, rgb=?, price=? where cpu_cooler_id=?;",
+                    cpuCooler.getBrandId(), cpuCooler.getProductName(), cpuCooler.getModel(), cpuCooler.getCoolerType(),
+                    cpuCooler.getSizeMm(), cpuCooler.getColor(), cpuCooler.isRgb(), cpuCooler.getPrice(), cpuCooler.getCpuCoolerId());
+            if(numOfRows == 0){
+                throw new DaoException("Zero rows affected, expected at least 1. ");
+            }else{
+                cooler = getCoolerById(cpuCooler.getCpuCoolerId());
+            }
+            return cooler;
+        }catch (CannotGetJdbcConnectionException e){
+            throw new DaoException("Unable to connect to database or server. ", e);
+        }catch (DataIntegrityViolationException e){
+            throw new DaoException("Error updating brand. ", e);
+        }
+    }
+    public int deleteCooler(int coolerId){
+        int numRows = 0;
+        try{
+            numRows = jdbcTemplate.update("delete from cpu_cooler where cpu_cooler_id = ?;", coolerId);
+        }catch (CannotGetJdbcConnectionException e){
+            throw new DaoException("Unable to connect to database or server. ", e);
+        }catch (DataIntegrityViolationException e){
+            throw new DaoException("Error deleting brand. ", e);
+        }
+        return numRows;
     }
 
     public CpuCooler mapRowToCase(SqlRowSet rowSet){
