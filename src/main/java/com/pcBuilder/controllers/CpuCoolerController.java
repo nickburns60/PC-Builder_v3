@@ -2,6 +2,7 @@ package com.pcBuilder.controllers;
 
 import com.pcBuilder.daos.CpuCoolerDao;
 import com.pcBuilder.models.CpuCooler;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,7 +24,7 @@ public class CpuCoolerController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("")
-    public CpuCooler createCooler(@RequestBody CpuCooler cpuCooler){
+    public CpuCooler createCooler(@Valid @RequestBody CpuCooler cpuCooler){
         return cpuCoolerDao.createCpuCooler(cpuCooler);
     }
 

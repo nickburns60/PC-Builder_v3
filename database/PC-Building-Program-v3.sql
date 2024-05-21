@@ -58,7 +58,7 @@ create table cpu_cooler (
 	size_mm int not null,
 	color varchar(20) not null,
 	rgb boolean not null,
-	price numeric(5,2) not null
+	price decimal not null
 );
 
 create table fans (

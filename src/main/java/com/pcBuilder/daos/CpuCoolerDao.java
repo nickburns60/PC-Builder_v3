@@ -2,6 +2,7 @@ package com.pcBuilder.daos;
 
 import com.pcBuilder.DaoException;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
@@ -10,17 +11,41 @@ import com.pcBuilder.models.CpuCooler;
 import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 @Component
 public class CpuCoolerDao {
-    private JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
 
     public CpuCoolerDao(DataSource dataSource){
         jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
+    public CpuCooler getCoolerById(int coolerId){
+        try{
+            return jdbcTemplate.queryForObject("select * from cpu_cooler where cpu_cooler_id = ?;", this::mapRowToCooler, coolerId);
+        }catch (EmptyResultDataAccessException e){
+            return null;
+        }
+//        SqlRowSet results = jdbcTemplate.queryForRowSet("select * from cpu_cooler where cpu_cooler_id = ?;", coolerId);
+//        if (results.next()){
+//            return mapRowToCooler(results);
+//        }
+//        return null;
+    }
+
+    public List<CpuCooler> getAllCoolers(){
+        return jdbcTemplate.query("select * from cpu_cooler;", this::mapRowToCooler);
+//        List<CpuCooler> coolers = new ArrayList<>();
+//        SqlRowSet results = jdbcTemplate.queryForRowSet("select * from cpu_cooler;");
+//        while (results.next()){
+//            coolers.add(mapRowToCooler(results));
+//        }
+//        return coolers;
+    }
 
     public List<CpuCoolerWithBrand> getCompatibleCoolers(int caseLength, int caseWidth){
         List<CpuCoolerWithBrand> coolers = new ArrayList<>();
@@ -44,34 +69,17 @@ public class CpuCoolerDao {
         return coolers;
     }
 
-    public List<CpuCooler> getAllCoolers(){
-        List<CpuCooler> coolers = new ArrayList<>();
-        SqlRowSet results = jdbcTemplate.queryForRowSet("select * from cpu_cooler;");
-        while (results.next()){
-            coolers.add(mapRowToCase(results));
-        }
-        return coolers;
-    }
-
-    public CpuCooler getCoolerById(int coolerId){
-        SqlRowSet results = jdbcTemplate.queryForRowSet("select * from cpu_cooler where cpu_cooler_id = ?;", coolerId);
-        if (results.next()){
-            return mapRowToCase(results);
-        }
-        return null;
-    }
-
     public CpuCooler createCpuCooler(CpuCooler newCooler){
         try{
             int coolerId = jdbcTemplate.queryForObject("insert into cpu_cooler (brand_id, product_name, model, cooler_type, " +
-                    "size_mm, color, rgb, price) values" +
-                    "(?,?,?,?,?,?,?,?) returning cpu_cooler_id", int.class, newCooler.getBrandId(), newCooler.getProductName(), newCooler.getModel(),
+                    "size_mm, color, rgb, price) " +
+                            "values (?, ?, ?, ?, ?, ?, ?, ?) returning cpu_cooler_id;", int.class, newCooler.getBrandId(), newCooler.getProductName(), newCooler.getModel(),
                     newCooler.getCoolerType(), newCooler.getSizeMm(), newCooler.getColor(), newCooler.isRgb(), newCooler.getPrice());
             return getCoolerById(coolerId);
         }catch (CannotGetJdbcConnectionException e){
             throw new DaoException("Unable to connect to database or server", e);
         }catch (DataIntegrityViolationException e){
-            throw new DaoException("Error creating brand", e);
+            throw new DaoException("Error creating cooler", e);
         }
     }
     public CpuCooler updateCooler(CpuCooler cpuCooler){
@@ -89,7 +97,7 @@ public class CpuCoolerDao {
         }catch (CannotGetJdbcConnectionException e){
             throw new DaoException("Unable to connect to database or server. ", e);
         }catch (DataIntegrityViolationException e){
-            throw new DaoException("Error updating brand. ", e);
+            throw new DaoException("Error updating cooler. ", e);
         }
     }
     public int deleteCooler(int coolerId){
@@ -99,22 +107,22 @@ public class CpuCoolerDao {
         }catch (CannotGetJdbcConnectionException e){
             throw new DaoException("Unable to connect to database or server. ", e);
         }catch (DataIntegrityViolationException e){
-            throw new DaoException("Error deleting brand. ", e);
+            throw new DaoException("Error deleting cooler. ", e);
         }
         return numRows;
     }
 
-    public CpuCooler mapRowToCase(SqlRowSet rowSet){
+    public CpuCooler mapRowToCooler(ResultSet row, int rowNumber) throws SQLException {
         CpuCooler cooler = new CpuCooler();
-        cooler.setCpuCoolerId(rowSet.getInt("cpu_cooler_id"));
-        cooler.setBrandId(rowSet.getInt("brand_id"));
-        cooler.setProductName(rowSet.getString("product_name"));
-        cooler.setModel(rowSet.getString("model"));
-        cooler.setCoolerType(rowSet.getString("cooler_type"));
-        cooler.setColor(rowSet.getString("color"));
-        cooler.setRgb(rowSet.getBoolean("rgb"));
-        cooler.setSizeMm(rowSet.getInt("size_mm"));
-        cooler.setPrice(rowSet.getBigDecimal("price"));
+        cooler.setCpuCoolerId(row.getInt("cpu_cooler_id"));
+        cooler.setBrandId(row.getInt("brand_id"));
+        cooler.setProductName(row.getString("product_name"));
+        cooler.setModel(row.getString("model"));
+        cooler.setCoolerType(row.getString("cooler_type"));
+        cooler.setSizeMm(row.getInt("size_mm"));
+        cooler.setColor(row.getString("color"));
+        cooler.setRgb(row.getBoolean("rgb"));
+        cooler.setPrice(row.getBigDecimal("price"));
         return cooler;
     }
 }

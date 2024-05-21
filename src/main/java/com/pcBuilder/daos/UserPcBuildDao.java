@@ -73,7 +73,7 @@ public class UserPcBuildDao {
         }catch (CannotGetJdbcConnectionException e){
             throw new DaoException("Unable to connect to database or server. ", e);
         }catch (DataIntegrityViolationException e){
-            throw new DaoException("Error updating brand. ", e);
+            throw new DaoException("Error updating pc build. ", e);
         }
     }
 
@@ -84,7 +84,7 @@ public class UserPcBuildDao {
         }catch (CannotGetJdbcConnectionException e){
             throw new DaoException("Unable to connect to database or server. ", e);
         }catch (DataIntegrityViolationException e){
-            throw new DaoException("Error deleting brand. ", e);
+            throw new DaoException("Error deleting pc build. ", e);
         }
         return numRows;
     }
