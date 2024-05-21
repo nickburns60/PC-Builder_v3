@@ -1,5 +1,9 @@
 package com.pcBuilder.daos;
 
+import com.pcBuilder.DaoException;
+import com.pcBuilder.models.Motherboard;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import com.pcBuilder.viewmodels.CaseWithBrandFormFactor;
@@ -51,6 +55,58 @@ public class PcCaseDao {
             return mapRowToCase(results);
         }
         return null;
+    }
+
+    public List<PcCase> getAllCases(){
+        List<PcCase> cases = new ArrayList<>();
+
+        SqlRowSet rowSet = jdbcTemplate.queryForRowSet("select * from pc_case");
+        while (rowSet.next()){
+            cases.add(mapRowToCase(rowSet));
+        }
+        return cases;
+    }
+
+    public PcCase createCase(PcCase newCase){
+        try{
+            int caseId = jdbcTemplate.queryForObject("insert into pc_case (form_factor_id, brand_id, product_name, model, color, rgb, length_mm, width_mm, num_fans_included, price) " +
+                            "values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) returning case_id;", int.class, newCase.getFormFactorId(), newCase.getBrandId(), newCase.getProductName(), newCase.getModel(),
+                    newCase.getColor(), newCase.isRgb(), newCase.getLengthInMm(), newCase.getWidthInMm(), newCase.getNumFansIncluded(), newCase.getPrice());
+            return getCaseById(caseId);
+        }catch (CannotGetJdbcConnectionException e){
+            throw new DaoException("Unable to connect to database or server. ", e);
+        }catch (DataIntegrityViolationException e){
+            throw new DaoException("Error creating pc case. ", e);
+        }
+    }
+
+    public PcCase updateCase(PcCase caseToUpdate){
+        PcCase pcCase = null;
+        try{
+            int numOfRows = jdbcTemplate.update("update pc_case set form_factor_id=?, brand_id=?, product_name=?, model=?, color=?, rgb=?, length_mm=?, " +
+                            "width_mm=?, num_fans_included=?, price=? where case_id=?;", caseToUpdate.getFormFactorId(), caseToUpdate.getBrandId(), caseToUpdate.getProductName(), caseToUpdate.getModel(),
+                   caseToUpdate.getColor(), caseToUpdate.isRgb(), caseToUpdate.getLengthInMm(), caseToUpdate.getWidthInMm(), caseToUpdate.getNumFansIncluded(), caseToUpdate.getPrice(), caseToUpdate.getCaseId());
+            if(numOfRows == 0){
+                throw new DaoException("Zero rows affected, expected at least 1. ");
+            }else{
+                pcCase = getCaseById(caseToUpdate.getCaseId());
+            }
+            return pcCase;
+        }catch (CannotGetJdbcConnectionException e){
+            throw new DaoException("Unable to connect to database or server. ", e);
+        }catch (DataIntegrityViolationException e){
+            throw new DaoException("Error updating pc case. ", e);
+        }
+    }
+
+    public void deleteCase(int id){
+        try{
+            jdbcTemplate.update("delete from pc_case where case_id = ?;", id);
+        }catch (CannotGetJdbcConnectionException e){
+            throw new DaoException("Unable to connect to database or server. ", e);
+        }catch (DataIntegrityViolationException e){
+            throw new DaoException("Error deleting case. ", e);
+        }
     }
 
     public PcCase mapRowToCase(SqlRowSet rowSet){

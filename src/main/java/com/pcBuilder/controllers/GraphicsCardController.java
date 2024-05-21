@@ -36,7 +36,7 @@ public class GraphicsCardController {
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{id}")
-    public void deleteBuild(@PathVariable int id){
+    public void deleteGpu(@PathVariable int id){
         graphicsCardDao.deleteGpu(id);
     }
 }

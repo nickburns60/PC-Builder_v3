@@ -90,9 +90,8 @@ public class GraphicsCardDao {
     }
 
     public void deleteGpu(int id){
-        int numRows = 0;
         try{
-            numRows = jdbcTemplate.update("delete from graphics_card where graphics_card_id = ?;", id);
+            jdbcTemplate.update("delete from graphics_card where graphics_card_id = ?;", id);
         }catch (CannotGetJdbcConnectionException e){
             throw new DaoException("Unable to connect to database or server. ", e);
         }catch (DataIntegrityViolationException e){

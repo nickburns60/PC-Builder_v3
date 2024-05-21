@@ -1,5 +1,9 @@
 package com.pcBuilder.daos;
 
+import com.pcBuilder.DaoException;
+import com.pcBuilder.models.GraphicsCard;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import com.pcBuilder.viewmodels.MoboWithSocketFormRamBrand;
@@ -49,6 +53,58 @@ public class MotherboardDao {
             return mapRowToMotherboard(results);
         }
         return null;
+    }
+
+    public List<Motherboard> getAllMobos(){
+        List<Motherboard> mobos = new ArrayList<>();
+
+        SqlRowSet rowSet = jdbcTemplate.queryForRowSet("select * from motherboard");
+        while (rowSet.next()){
+            mobos.add(mapRowToMotherboard(rowSet));
+        }
+        return mobos;
+    }
+
+    public Motherboard createMobo(Motherboard newMobo){
+        try{
+            int moboId = jdbcTemplate.queryForObject("insert into motherboard (socket_id, form_factor_id, ram_type_id, brand_id, product_name, model, price) " +
+                    "values (?, ?, ?, ?, ?, ?, ?) returning motherboard_id;", int.class, newMobo.getSocketId(), newMobo.getFormFactorId(), newMobo.getRamTypeId(),
+                    newMobo.getBrandId(), newMobo.getProductName(), newMobo.getModel(), newMobo.getPrice());
+            return getMotherboardById(moboId);
+        }catch (CannotGetJdbcConnectionException e){
+            throw new DaoException("Unable to connect to database or server. ", e);
+        }catch (DataIntegrityViolationException e){
+            throw new DaoException("Error creating motherboard. ", e);
+        }
+    }
+
+    public Motherboard updateMobo(Motherboard moboToUpdate){
+        Motherboard mobo = null;
+        try{
+            int numOfRows = jdbcTemplate.update("update motherboard set socket_id=?, form_factor_id=?, ram_type_id=?, brand_id=?, product_name=?, " +
+                            "model=?, price=? where motherboard_id=?;", moboToUpdate.getSocketId(), moboToUpdate.getFormFactorId(), moboToUpdate.getRamTypeId(), moboToUpdate.getBrandId(),
+                    moboToUpdate.getProductName(), moboToUpdate.getModel(), moboToUpdate.getPrice(), moboToUpdate.getMotherboardId());
+            if(numOfRows == 0){
+                throw new DaoException("Zero rows affected, expected at least 1. ");
+            }else{
+                mobo = getMotherboardById(moboToUpdate.getMotherboardId());
+            }
+            return mobo;
+        }catch (CannotGetJdbcConnectionException e){
+            throw new DaoException("Unable to connect to database or server. ", e);
+        }catch (DataIntegrityViolationException e){
+            throw new DaoException("Error updating Motherboard. ", e);
+        }
+    }
+
+    public void deleteMobo(int id){
+        try{
+            jdbcTemplate.update("delete from motherboard where motherboard_id = ?;", id);
+        }catch (CannotGetJdbcConnectionException e){
+            throw new DaoException("Unable to connect to database or server. ", e);
+        }catch (DataIntegrityViolationException e){
+            throw new DaoException("Error deleting motherboard. ", e);
+        }
     }
 
     public Motherboard mapRowToMotherboard(SqlRowSet rowSet){
