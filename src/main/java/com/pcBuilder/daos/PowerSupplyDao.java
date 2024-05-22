@@ -1,5 +1,9 @@
 package com.pcBuilder.daos;
 
+import com.pcBuilder.DaoException;
+import com.pcBuilder.models.Motherboard;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import com.pcBuilder.viewmodels.PowerSupplyWithBrandWattage;
@@ -50,13 +54,65 @@ public class PowerSupplyDao {
         return null;
     }
 
+    public List<PowerSupply> getAllPsus(){
+        List<PowerSupply> powerSupplies = new ArrayList<>();
+        SqlRowSet rowSet = jdbcTemplate.queryForRowSet("select * from psu");
+        while (rowSet.next()){
+            powerSupplies.add(mapRowToPowerSupply(rowSet));
+        }
+        return powerSupplies;
+    }
+
+
+    public PowerSupply createPsu(PowerSupply newPsu){
+        try{
+            int psuId = jdbcTemplate.queryForObject("insert into psu (psu_wattage_id, brand_id, product_name, model, cable_type, energy_efficiency, price) " +
+                            "values (?, ?, ?, ?, ?, ?, ?) returning psu_id;", int.class, newPsu.getPsuWattageId(), newPsu.getBrandId(), newPsu.getProductName(),
+                    newPsu.getModel(), newPsu.getCableType(), newPsu.getEnergyEfficiency(), newPsu.getPrice());
+            return getPowerSupplyById(psuId);
+        }catch (CannotGetJdbcConnectionException e){
+            throw new DaoException("Unable to connect to database or server. ", e);
+        }catch (DataIntegrityViolationException e){
+            throw new DaoException("Error creating power supply. ", e);
+        }
+    }
+
+    public PowerSupply updatePsu(PowerSupply psuToUpdate){
+        PowerSupply psu = null;
+        try{
+            int numOfRows = jdbcTemplate.update("update psu set psu_wattage_id=?, brand_id=?, product_name=?, model=?, cable_type=?, " +
+                            "energy_efficiency=?, price=? where psu_id=?;", psuToUpdate.getPsuWattageId(), psuToUpdate.getBrandId(), psuToUpdate.getProductName(), psuToUpdate.getModel(),
+                    psuToUpdate.getCableType(), psuToUpdate.getEnergyEfficiency(), psuToUpdate.getPrice(), psuToUpdate.getPsuId());
+            if(numOfRows == 0){
+                throw new DaoException("Zero rows affected, expected at least 1. ");
+            }else{
+                psu = getPowerSupplyById(psuToUpdate.getPsuId());
+            }
+            return psu;
+        }catch (CannotGetJdbcConnectionException e){
+            throw new DaoException("Unable to connect to database or server. ", e);
+        }catch (DataIntegrityViolationException e){
+            throw new DaoException("Error updating power supply. ", e);
+        }
+    }
+
+    public void deletePsu(int id){
+        try{
+            jdbcTemplate.update("delete from psu where psu_id = ?;", id);
+        }catch (CannotGetJdbcConnectionException e){
+            throw new DaoException("Unable to connect to database or server. ", e);
+        }catch (DataIntegrityViolationException e){
+            throw new DaoException("Error deleting power supply. ", e);
+        }
+    }
+
     public PowerSupply mapRowToPowerSupply(SqlRowSet rowSet){
         PowerSupply powerSupply = new PowerSupply();
         powerSupply.setPsuId(rowSet.getInt("psu_id"));
         powerSupply.setBrandId(rowSet.getInt("brand_id"));
         powerSupply.setProductName(rowSet.getString("product_name"));
         powerSupply.setModel(rowSet.getString("model"));
-        powerSupply.setPsuId(rowSet.getInt("psu_wattage_id"));
+        powerSupply.setPsuWattageId(rowSet.getInt("psu_wattage_id"));
         powerSupply.setCableType(rowSet.getString("cable_type"));
         powerSupply.setEnergyEfficiency(rowSet.getString("energy_efficiency"));
         powerSupply.setPrice(rowSet.getBigDecimal("price"));
