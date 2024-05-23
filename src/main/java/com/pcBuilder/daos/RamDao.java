@@ -1,7 +1,11 @@
 package com.pcBuilder.daos;
 
+import com.pcBuilder.DaoException;
+import com.pcBuilder.models.Ram;
 import com.pcBuilder.viewmodels.RamWithBrandRamType;
 import com.pcBuilder.models.Ram;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
@@ -45,6 +49,57 @@ public class RamDao {
             return mapRowToRam(results);
         }
         return null;
+    }
+
+    public List<Ram> getAllRam(){
+        List<Ram> ram = new ArrayList<>();
+        SqlRowSet rowSet = jdbcTemplate.queryForRowSet("select * from ram");
+        while (rowSet.next()){
+            ram.add(mapRowToRam(rowSet));
+        }
+        return ram;
+    }
+
+
+    public Ram createRam(Ram newRam){
+        try{
+            int ramId = jdbcTemplate.queryForObject("insert into ram (ram_type_id, brand_id, product_name, model, capacity_gb, num_of_sticks, rgb, price) " +
+                            "values (?, ?, ?, ?, ?, ?, ?, ?) returning ram_id;", int.class, newRam.getRamTypeId(), newRam.getBrandId(), newRam.getProductName(), newRam.getModel(),
+                    newRam.getCapacityGb(), newRam.getNumOfSticks(), newRam.isRgb(), newRam.getPrice());
+            return getRamById(ramId);
+        }catch (CannotGetJdbcConnectionException e){
+            throw new DaoException("Unable to connect to database or server. ", e);
+        }catch (DataIntegrityViolationException e){
+            throw new DaoException("Error creating ram. ", e);
+        }
+    }
+
+    public Ram updateRam(Ram ramToUpdate){
+        Ram ram = null;
+        try{
+            int numOfRows = jdbcTemplate.update("update ram set ram_type_id=?, brand_id=?, product_name=?, model=?, capacity_gb=?, num_of_sticks=?, rgb=?, price=? where ram_id=?;", ramToUpdate.getRamTypeId(), ramToUpdate.getBrandId(),
+                    ramToUpdate.getProductName(), ramToUpdate.getModel(), ramToUpdate.getCapacityGb(), ramToUpdate.getNumOfSticks(), ramToUpdate.isRgb(), ramToUpdate.getPrice(), ramToUpdate.getRamId());
+            if(numOfRows == 0){
+                throw new DaoException("Zero rows affected, expected at least 1. ");
+            }else{
+                ram = getRamById(ramToUpdate.getRamId());
+            }
+            return ram;
+        }catch (CannotGetJdbcConnectionException e){
+            throw new DaoException("Unable to connect to database or server. ", e);
+        }catch (DataIntegrityViolationException e){
+            throw new DaoException("Error updating ram. ", e);
+        }
+    }
+
+    public void deleteRam(int id){
+        try{
+            jdbcTemplate.update("delete from ram where ram_id = ?;", id);
+        }catch (CannotGetJdbcConnectionException e){
+            throw new DaoException("Unable to connect to database or server. ", e);
+        }catch (DataIntegrityViolationException e){
+            throw new DaoException("Error deleting ram. ", e);
+        }
     }
 
     public Ram mapRowToRam(SqlRowSet rowSet){
