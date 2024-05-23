@@ -1,7 +1,11 @@
 package com.pcBuilder.daos;
 
+import com.pcBuilder.DaoException;
+import com.pcBuilder.models.StorageDrive;
 import com.pcBuilder.viewmodels.StorageDriveWithBrand;
 import com.pcBuilder.models.StorageDrive;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
@@ -44,6 +48,57 @@ public class StorageDriveDao {
             return mapRowToStorageDrive(results);
         }
         return null;
+    }
+
+    public List<StorageDrive> getAllStorageDrives(){
+        List<StorageDrive> storageDrives = new ArrayList<>();
+        SqlRowSet rowSet = jdbcTemplate.queryForRowSet("select * from storage_drive");
+        while (rowSet.next()){
+            storageDrives.add(mapRowToStorageDrive(rowSet));
+        }
+        return storageDrives;
+    }
+
+
+    public StorageDrive createStorageDrive(StorageDrive newStoragedrive){
+        try{
+            int storageDriveId = jdbcTemplate.queryForObject("insert into storage_drive (brand_id, product_name, model, capacity_gb, form_factor, price) " +
+                            "values (?, ?, ?, ?, ?, ?) returning storage_drive_id;", int.class, newStoragedrive.getBrandId(), newStoragedrive.getProductName(), newStoragedrive.getModel(),
+                    newStoragedrive.getCapacityGb(), newStoragedrive.getFormFactor(), newStoragedrive.getPrice());
+            return getStorageDriveById(storageDriveId);
+        }catch (CannotGetJdbcConnectionException e){
+            throw new DaoException("Unable to connect to database or server. ", e);
+        }catch (DataIntegrityViolationException e){
+            throw new DaoException("Error creating storage drive. ", e);
+        }
+    }
+
+    public StorageDrive updateStorageDrive(StorageDrive storageDriveToUpdate){
+        StorageDrive storageDrive = null;
+        try{
+            int numOfRows = jdbcTemplate.update("update storage_drive set brand_id=?, product_name=?, model=?, capacity_gb=?, form_factor=?, price=? where storage_drive_id=?;", storageDriveToUpdate.getBrandId(),
+                    storageDriveToUpdate.getProductName(), storageDriveToUpdate.getModel(), storageDriveToUpdate.getCapacityGb(), storageDriveToUpdate.getFormFactor(), storageDriveToUpdate.getPrice(), storageDriveToUpdate.getStorageDriveId());
+            if(numOfRows == 0){
+                throw new DaoException("Zero rows affected, expected at least 1. ");
+            }else{
+                storageDrive = getStorageDriveById(storageDriveToUpdate.getStorageDriveId());
+            }
+            return storageDrive;
+        }catch (CannotGetJdbcConnectionException e){
+            throw new DaoException("Unable to connect to database or server. ", e);
+        }catch (DataIntegrityViolationException e){
+            throw new DaoException("Error updating storage drive. ", e);
+        }
+    }
+
+    public void deleteStorageDrive(int id){
+        try{
+            jdbcTemplate.update("delete from storage_drive where storage_drive_id = ?;", id);
+        }catch (CannotGetJdbcConnectionException e){
+            throw new DaoException("Unable to connect to database or server. ", e);
+        }catch (DataIntegrityViolationException e){
+            throw new DaoException("Error deleting storage drive. ", e);
+        }
     }
 
     public StorageDrive mapRowToStorageDrive(SqlRowSet rowSet){
