@@ -1,18 +1,6 @@
-drop table if exists user_pc_build;
-drop table if exists pc_case;
-drop table if exists psu;
-drop table if exists ram;
-drop table if exists motherboard;
-drop table if exists graphics_card;
-drop table if exists processor;
-drop table if exists fans;
-drop table if exists cpu_cooler;
-drop table if exists storage_drive;
-drop table if exists psu_wattage;
-drop table if exists form_factor;
-drop table if exists ram_type;
-drop table if exists socket;
-drop table if exists brand;
+drop table if exists user_pc_build, pc_case, psu, ram, motherboard, graphics_card, processor, fans, cpu_cooler, 
+storage_drive, psu_wattage, form_factor, ram_type, socket, brand, users, roles;
+
 
 create table brand (
 	brand_id serial primary key,
@@ -152,6 +140,18 @@ create table user_pc_build (
 	fan_id int references fans not null,
 	cpu_cooler_id int references cpu_cooler not null,
 	total_cost decimal not null
+);
+
+create table users (
+	username varchar(50) primary key,
+	password varchar(50) not null,
+	email varchar(50) not null
+);
+
+create table roles (
+	username varchar(50) references users,
+	role varchar(50) not null,
+	primary key (username, role)
 );
 
 insert into brand (brand_name) values
