@@ -4,6 +4,7 @@ import com.pcBuilder.daos.UserPcBuildDao;
 import com.pcBuilder.models.UserPcBuild;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,20 +27,27 @@ public class UserPcBuildController {
         this.userPcBuildDao = userPcBuildDao;
     }
 
+    @PreAuthorize("isAuthenticated")
     @GetMapping("")
     public List<UserPcBuild> listBuilds(){
         return userPcBuildDao.getAllUserPcBuilds();
     }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("")
     public UserPcBuild createBuild(@Valid @RequestBody UserPcBuild build){
         return userPcBuildDao.createUserPcBuild(build);
     }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
     @PutMapping("/{id}")
     public UserPcBuild updateBuild(@PathVariable int id, @Valid @RequestBody UserPcBuild build){
         build.setPcId(id);
         return userPcBuildDao.updateUserPcBuild(build);
     }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{id}")
     public void deleteBuild(@PathVariable int id){

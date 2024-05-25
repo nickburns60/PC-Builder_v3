@@ -91,8 +91,8 @@ public class FanDao {
         Fans fan = null;
         try{
             int numOfRows = jdbcTemplate.update("update fans set brand_id=?, product_name=?, model=?, size_mm=?, num_of_fans=?, color=?, rgb=?, price=? where fan_id=?;",
-                    fan.getBrandId(), fan.getProductName(), fan.getModel(), fan.getSizeInMm(),
-                    fan.getNumOfFans(), fan.getColor(), fan.isRgb(), fan.getPrice(), fan.getFanId());
+                    fanToUpdate.getBrandId(), fanToUpdate.getProductName(), fanToUpdate.getModel(), fanToUpdate.getSizeInMm(),
+                    fanToUpdate.getNumOfFans(), fanToUpdate.getColor(), fanToUpdate.isRgb(), fanToUpdate.getPrice(), fanToUpdate.getFanId());
             if(numOfRows == 0){
                 throw new DaoException("Zero rows affected, expected at least 1. ");
             }else{

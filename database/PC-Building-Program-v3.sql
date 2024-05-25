@@ -143,16 +143,24 @@ create table user_pc_build (
 );
 
 create table users (
-	username varchar(50) primary key,
-	password varchar(50) not null,
-	email varchar(50) not null
+	username varchar(256) primary key,
+	password varchar(256) not null,
+	email varchar(256) not null
 );
 
 create table roles (
-	username varchar(50) references users,
-	role varchar(50) not null,
+	username varchar(256) references users,
+	role varchar(256) not null,
 	primary key (username, role)
 );
+
+insert into users (username, password, email) values
+('admin', '$2a$10$UGO28ZuUlQSHV1EwsyBl4.ovJ7rmS996ubKxzfFvJthnr47i7y1wm', 'admin@test.com'),
+('user', '$2a$10$//2DShIWcNN8nTc/WPABwensKVFJrZ6G8363aiPf7VU0Qq7hHxMfW', 'user@test.com');
+
+insert into roles (username, role) values
+('admin', 'ADMIN'),
+('user', 'USER');
 
 insert into brand (brand_name) values
 /*1*/('Adata'), /*2*/('AMD'), /*3*/('Arctic Cooling'), /*4*/('ASRock'), /*5*/('Asus'),
