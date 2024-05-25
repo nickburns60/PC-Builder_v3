@@ -682,7 +682,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n        \"brandId\": 8,\r\n        \"productName\": \"RM750e\",\r\n        \"model\": \"C3PO\",\r\n        \"psuWattageId\": 7,\r\n        \"cableType\": \"Fully Modular\",\r\n        \"energyEfficiency\": \"80 Plus Gold\",\r\n        \"price\": 99.99\r\n    }",
+							"raw": "{\r\n        \"brandId\": 8,\r\n        \"productName\": \"RM750e\",\r\n        \"model\": \"TEST\",\r\n        \"psuWattageId\": 7,\r\n        \"cableType\": \"Fully Modular\",\r\n        \"energyEfficiency\": \"80 Plus Gold\",\r\n        \"price\": 99.99\r\n    }",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -716,7 +716,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n        \"brandId\": 8,\r\n        \"productName\": \"RM750e\",\r\n        \"model\": \"CP-9020262-NAMNAM\",\r\n        \"psuWattageId\": 7,\r\n        \"cableType\": \"Fully Modular\",\r\n        \"energyEfficiency\": \"80 Plus Gold\",\r\n        \"price\": 99.99\r\n    }",
+							"raw": "{\r\n        \"brandId\": 8,\r\n        \"productName\": \"RM750e\",\r\n        \"model\": \"Update Test\",\r\n        \"psuWattageId\": 7,\r\n        \"cableType\": \"Fully Modular\",\r\n        \"energyEfficiency\": \"80 Plus Gold\",\r\n        \"price\": 99.99\r\n    }",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -724,7 +724,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8080/powerSupplies/1",
+							"raw": "http://localhost:8080/powerSupplies/19",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -732,7 +732,7 @@
 							"port": "8080",
 							"path": [
 								"powerSupplies",
-								"1"
+								"19"
 							]
 						}
 					},
@@ -807,7 +807,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n        \"brandId\": 17,\r\n        \"socketId\": 3,\r\n        \"ramTypeId\": 3,\r\n        \"productName\": \"Core i5-12600KF\",\r\n        \"model\": \"BX8071512600KF\",\r\n        \"price\": 299.99\r\n    }",
+							"raw": "{\r\n        \"brandId\": 17,\r\n        \"socketId\": 3,\r\n        \"ramTypeId\": 3,\r\n        \"productName\": \"Core i5-12600K\",\r\n        \"model\": \"TEST\",\r\n        \"price\": 299.99\r\n    }",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -841,7 +841,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n        \"brandId\": 17,\r\n        \"socketId\": 3,\r\n        \"ramTypeId\": 3,\r\n        \"productName\": \"Core i5-12600KFC\",\r\n        \"model\": \"BX8071512600KFC\",\r\n        \"price\": 299.99\r\n    }",
+							"raw": "{\r\n        \"brandId\": 17,\r\n        \"socketId\": 3,\r\n        \"ramTypeId\": 3,\r\n        \"productName\": \"Core i5-12600KFC\",\r\n        \"model\": \"Update Test\",\r\n        \"price\": 299.99\r\n    }",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -849,7 +849,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8080/processors/1",
+							"raw": "http://localhost:8080/processors/16",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -857,7 +857,7 @@
 							"port": "8080",
 							"path": [
 								"processors",
-								"1"
+								"16"
 							]
 						}
 					},
@@ -986,7 +986,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8080/ram/1",
+							"raw": "http://localhost:8080/ram/17",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -994,7 +994,7 @@
 							"port": "8080",
 							"path": [
 								"ram",
-								"1"
+								"17"
 							]
 						}
 					},
@@ -1069,7 +1069,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n        \"brandId\": 27,\r\n        \"productName\": \"970 EVO Plus\",\r\n        \"model\": \"Create Test\",\r\n        \"capacityGb\": 2000,\r\n        \"formFactor\": \"M.2\",\r\n        \"price\": 239.99\r\n    }",
+							"raw": "{\r\n        \"brandId\": 27,\r\n        \"productName\": \"970 EVO Plus\",\r\n        \"model\": \"Test\",\r\n        \"capacityGb\": 2000,\r\n        \"formFactor\": \"M.2\",\r\n        \"price\": 239.99\r\n    }",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1111,7 +1111,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8080/storageDrives/1",
+							"raw": "http://localhost:8080/storageDrives/46",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -1119,7 +1119,7 @@
 							"port": "8080",
 							"path": [
 								"storageDrives",
-								"1"
+								"46"
 							]
 						}
 					},
