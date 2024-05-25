@@ -1,7 +1,6 @@
 package com.pcBuilder.daos;
 
 import com.pcBuilder.DaoException;
-import com.pcBuilder.models.Motherboard;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -14,16 +13,33 @@ import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
 
+
+/**
+ * Case data access object
+ */
 @Component
 public class PcCaseDao {
+    /**
+     * JDBC template
+     */
     private final JdbcTemplate jdbcTemplate;
 
+    /**
+     * Constructor
+     * @param dataSource data source
+     */
     public PcCaseDao(DataSource dataSource){
         jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
 
+    /**
+     * Get all cases compatible with motherboard
+     * @param formFactorId form factor from motherboard
+     * @return list of compatible motherboards
+     */
     public List<CaseWithBrandFormFactor> getCompatibleCases(int formFactorId){
+        //Not used in api, will be used in future
         List<CaseWithBrandFormFactor> cases = new ArrayList<>();
         String sql = "select case_id, brand_name, product_name, form_factor_name, color, rgb, length_mm, width_mm, num_fans_included, price, pc_case.form_factor_id as form_factor_num\n" +
                 "from pc_case\n" +
@@ -49,6 +65,11 @@ public class PcCaseDao {
         return cases;
     }
 
+    /**
+     * Get a case using id
+     * @param caseId case id
+     * @return case requested
+     */
     public PcCase getCaseById(int caseId){
         SqlRowSet results = jdbcTemplate.queryForRowSet("select * from pc_case where case_id = ?;", caseId);
         if (results.next()){
@@ -57,6 +78,10 @@ public class PcCaseDao {
         return null;
     }
 
+    /**
+     * Get all cases
+     * @return list of cases
+     */
     public List<PcCase> getAllCases(){
         List<PcCase> cases = new ArrayList<>();
 
@@ -67,6 +92,11 @@ public class PcCaseDao {
         return cases;
     }
 
+    /**
+     * Create a case
+     * @param newCase case
+     * @return created case
+     */
     public PcCase createCase(PcCase newCase){
         try{
             int caseId = jdbcTemplate.queryForObject("insert into pc_case (form_factor_id, brand_id, product_name, model, color, rgb, length_mm, width_mm, num_fans_included, price) " +
@@ -80,6 +110,11 @@ public class PcCaseDao {
         }
     }
 
+    /**
+     * Update a case
+     * @param caseToUpdate case
+     * @return updated case
+     */
     public PcCase updateCase(PcCase caseToUpdate){
         PcCase pcCase = null;
         try{
@@ -99,6 +134,10 @@ public class PcCaseDao {
         }
     }
 
+    /**
+     * Delete a case
+     * @param id id to delete
+     */
     public void deleteCase(int id){
         try{
             jdbcTemplate.update("delete from pc_case where case_id = ?;", id);
@@ -109,6 +148,11 @@ public class PcCaseDao {
         }
     }
 
+    /**
+     * Case mapper
+     * @param rowSet rowset
+     * @return mapped case
+     */
     public PcCase mapRowToCase(SqlRowSet rowSet){
         PcCase pcCase = new PcCase();
         pcCase.setCaseId(rowSet.getInt("case_id"));

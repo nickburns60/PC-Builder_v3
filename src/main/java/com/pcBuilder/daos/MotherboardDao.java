@@ -1,7 +1,6 @@
 package com.pcBuilder.daos;
 
 import com.pcBuilder.DaoException;
-import com.pcBuilder.models.GraphicsCard;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -14,15 +13,32 @@ import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
 
+
+/**
+ * Motherboard data access object
+ */
 @Component
 public class MotherboardDao {
+    /**
+     * JDBC template
+     */
     private final JdbcTemplate jdbcTemplate;
 
+    /**
+     * Constructor
+     * @param dataSource data source
+     */
     public MotherboardDao(DataSource dataSource){
         jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
+    /**
+     * Get all motherboards compatible with processor
+     * @param socketId socket id from processor
+     * @return list of compatible motherboards
+     */
     public List<MoboWithSocketFormRamBrand> getCompatibleMobosBySocketId(int socketId){
+        //Not used in api, will be used in future
         List<MoboWithSocketFormRamBrand> mobos = new ArrayList<>();
         String sql = "select motherboard_id, brand_name, product_name, socket_type, form_factor_name, ram_type_name, price, motherboard.socket_id as socket_num\n" +
                 "from motherboard\n" +
@@ -47,6 +63,11 @@ public class MotherboardDao {
         return mobos;
     }
 
+    /**
+     * Get a motherboard using id
+     * @param moboId motherboard id
+     * @return motherboard requested
+     */
     public Motherboard getMotherboardById(int moboId){
         SqlRowSet results = jdbcTemplate.queryForRowSet("select * from motherboard where motherboard_id = ?;", moboId);
         if (results.next()){
@@ -55,6 +76,10 @@ public class MotherboardDao {
         return null;
     }
 
+    /**
+     * Get all motherboards
+     * @return list of motherboards
+     */
     public List<Motherboard> getAllMobos(){
         List<Motherboard> mobos = new ArrayList<>();
 
@@ -65,6 +90,11 @@ public class MotherboardDao {
         return mobos;
     }
 
+    /**
+     * Create a motherboard
+     * @param newMobo motherboard
+     * @return created motherboard
+     */
     public Motherboard createMobo(Motherboard newMobo){
         try{
             int moboId = jdbcTemplate.queryForObject("insert into motherboard (socket_id, form_factor_id, ram_type_id, brand_id, product_name, model, price) " +
@@ -78,6 +108,11 @@ public class MotherboardDao {
         }
     }
 
+    /**
+     * Update a motherboard
+     * @param moboToUpdate motherboard
+     * @return updated motherboard
+     */
     public Motherboard updateMobo(Motherboard moboToUpdate){
         Motherboard mobo = null;
         try{
@@ -97,6 +132,10 @@ public class MotherboardDao {
         }
     }
 
+    /**
+     * Delete a motherboard
+     * @param id id to delete
+     */
     public void deleteMobo(int id){
         try{
             jdbcTemplate.update("delete from motherboard where motherboard_id = ?;", id);
@@ -107,6 +146,11 @@ public class MotherboardDao {
         }
     }
 
+    /**
+     * Motherboard mapper
+     * @param rowSet rowset
+     * @return mapped motherboard
+     */
     public Motherboard mapRowToMotherboard(SqlRowSet rowSet){
         Motherboard motherboard = new Motherboard();
         motherboard.setMotherboardId(rowSet.getInt("motherboard_id"));

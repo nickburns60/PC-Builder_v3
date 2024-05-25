@@ -7,21 +7,35 @@ import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import com.pcBuilder.viewmodels.ProcessorWithBrandSocketRam;
-import com.pcBuilder.models.Processor;
 import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
 
+
+/**
+ * Processor data access object
+ */
 @Component
 public class ProcessorDao {
+    /**
+     * JDBC template
+     */
     private final JdbcTemplate jdbcTemplate;
 
+    /**
+     * Constructor
+     * @param dataSource data source
+     */
     public ProcessorDao(DataSource dataSource){
         jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
+    /**
+     * Get all processors
+     * @return list of processors
+     */
     public List<Processor> getAllProcessors(){
         List<Processor> processors = new ArrayList<>();
         SqlRowSet results = jdbcTemplate.queryForRowSet("select * from processor;");
@@ -31,7 +45,12 @@ public class ProcessorDao {
         return processors;
     }
 
+    /**
+     * Get all processors with names of compatibility parts
+     * @return list of processors with named parts
+     */
     public List<ProcessorWithBrandSocketRam> getAllProcessorsWithFullInfoDisplayed(){
+        //Not used in api, will be used in future
         List<ProcessorWithBrandSocketRam> processors = new ArrayList<>();
         String sql = "select processor_id, brand_name, processor.product_name, socket_type, ram_type_name, processor.price\n" +
                 "from processor\n" +
@@ -52,6 +71,11 @@ public class ProcessorDao {
         return processors;
     }
 
+    /**
+     * Get a processor using id
+     * @param id processor id
+     * @return processor requested
+     */
     public Processor getProcessorByProcessorId(int id){
         SqlRowSet results = jdbcTemplate.queryForRowSet("select * from processor where processor_id = ?", id);
         if(results.next()){
@@ -60,16 +84,12 @@ public class ProcessorDao {
         return null;
     }
 
-    public List<Processor> getAllCpus(){
-        List<Processor> cpus = new ArrayList<>();
-        SqlRowSet rowSet = jdbcTemplate.queryForRowSet("select * from processor");
-        while (rowSet.next()){
-            cpus.add(mapRowToProcessor(rowSet));
-        }
-        return cpus;
-    }
 
-
+    /**
+     * Create a processor
+     * @param newCpu processor
+     * @return created processor
+     */
     public Processor createCpu(Processor newCpu){
         try{
             int cpuId = jdbcTemplate.queryForObject("insert into processor (brand_id, socket_id, ram_type_id, product_name, model, price) " +
@@ -83,6 +103,11 @@ public class ProcessorDao {
         }
     }
 
+    /**
+     * Update a processor
+     * @param cpuToUpdate processor
+     * @return updated processor
+     */
     public Processor updateCpu(Processor cpuToUpdate){
         Processor cpu = null;
         try{
@@ -101,6 +126,10 @@ public class ProcessorDao {
         }
     }
 
+    /**
+     * Delete a processor
+     * @param id id to delete
+     */
     public void deleteCpu(int id){
         try{
             jdbcTemplate.update("delete from processor where processor_id = ?;", id);
@@ -111,6 +140,11 @@ public class ProcessorDao {
         }
     }
 
+    /**
+     * Processor mapper
+     * @param rowSet rowset
+     * @return mapped processor
+     */
     public Processor mapRowToProcessor(SqlRowSet rowSet){
         Processor processor = new Processor();
         processor.setProcessorId(rowSet.getInt("processor_id"));

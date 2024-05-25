@@ -3,7 +3,6 @@ package com.pcBuilder.daos;
 import com.pcBuilder.DaoException;
 import com.pcBuilder.models.Ram;
 import com.pcBuilder.viewmodels.RamWithBrandRamType;
-import com.pcBuilder.models.Ram;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -14,15 +13,32 @@ import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
 
+
+/**
+ * Ram data access object
+ */
 @Component
 public class RamDao {
+    /**
+     * JDBC template
+     */
     private final JdbcTemplate jdbcTemplate;
 
+    /**
+     * Constructor
+     * @param dataSource data source
+     */
     public RamDao(DataSource dataSource){
         jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
+    /**
+     * Get all ram compatible with motherboard
+     * @param ramTypeId ram type of motherboard
+     * @return list of compatible ram
+     */
     public List<RamWithBrandRamType> getCompatibleRamByRamTypeId(int ramTypeId){
+        //Not used in api, will be used in future
         List<RamWithBrandRamType> compatibleRam = new ArrayList<>();
         String sql = "select ram_id, brand_name, product_name, ram_type_name, price, ram.ram_type_id as type_id\n" +
                 "from ram\n" +
@@ -43,6 +59,11 @@ public class RamDao {
         return compatibleRam;
     }
 
+    /**
+     * Get ram using an id
+     * @param ramId ram id
+     * @return ram requested
+     */
     public Ram getRamById(int ramId){
         SqlRowSet results = jdbcTemplate.queryForRowSet("select * from ram where ram_Id = ?", ramId);
         if (results.next()){
@@ -51,6 +72,10 @@ public class RamDao {
         return null;
     }
 
+    /**
+     * Get all ram
+     * @return list of ram
+     */
     public List<Ram> getAllRam(){
         List<Ram> ram = new ArrayList<>();
         SqlRowSet rowSet = jdbcTemplate.queryForRowSet("select * from ram");
@@ -61,6 +86,11 @@ public class RamDao {
     }
 
 
+    /**
+     * Create ram
+     * @param newRam ram
+     * @return created ram
+     */
     public Ram createRam(Ram newRam){
         try{
             int ramId = jdbcTemplate.queryForObject("insert into ram (ram_type_id, brand_id, product_name, model, capacity_gb, num_of_sticks, rgb, price) " +
@@ -74,6 +104,11 @@ public class RamDao {
         }
     }
 
+    /**
+     * Update ram
+     * @param ramToUpdate ram
+     * @return updated ram
+     */
     public Ram updateRam(Ram ramToUpdate){
         Ram ram = null;
         try{
@@ -92,6 +127,10 @@ public class RamDao {
         }
     }
 
+    /**
+     * Delete ram
+     * @param id id to delete
+     */
     public void deleteRam(int id){
         try{
             jdbcTemplate.update("delete from ram where ram_id = ?;", id);
@@ -102,6 +141,11 @@ public class RamDao {
         }
     }
 
+    /**
+     * Ram mapper
+     * @param rowSet rowset
+     * @return mapped ram
+     */
     public Ram mapRowToRam(SqlRowSet rowSet){
         Ram ram = new Ram();
         ram.setRamId(rowSet.getInt("ram_id"));

@@ -9,30 +9,41 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-//  May attempt to add compatibility logic at a later time
-/**
- * Primary goals:
- * <p>
- * Maintain compatibility checks by making sure all selections added to create method are compatible with each other; do this by somehow adding validations for this in UserPcBuild class
- * or find a way to integrate original checks from command line version of this app, such as the getCompatible...etc. methods that used compatible specific sql and the viewmodel classes.
- * Find a way to get the JSON to show the full set of info for selected parts instead of just the serial id of each part listed on a build.
- */
 
+/**
+ * Pc build controller
+ */
 @RestController
 @RequestMapping("/pcBuilds")
 public class UserPcBuildController {
+    /**
+     * Pc build data access object
+     */
     private final UserPcBuildDao userPcBuildDao;
 
+    /**
+     * Constructor
+     * @param userPcBuildDao pc build data access object
+     */
     public UserPcBuildController(UserPcBuildDao userPcBuildDao){
         this.userPcBuildDao = userPcBuildDao;
     }
 
+    /**
+     * Get all pc builds
+     * @return list of pc builds
+     */
     @PreAuthorize("isAuthenticated")
     @GetMapping("")
     public List<UserPcBuild> listBuilds(){
         return userPcBuildDao.getAllUserPcBuilds();
     }
 
+    /**
+     * Create a pc build
+     * @param build pc build
+     * @return created pc build
+     */
     @PreAuthorize("hasAuthority('ADMIN')")
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("")
@@ -40,6 +51,12 @@ public class UserPcBuildController {
         return userPcBuildDao.createUserPcBuild(build);
     }
 
+    /**
+     * Update a pc build
+     * @param id id to update
+     * @param build pc build
+     * @return updated build
+     */
     @PreAuthorize("hasAuthority('ADMIN')")
     @PutMapping("/{id}")
     public UserPcBuild updateBuild(@PathVariable int id, @Valid @RequestBody UserPcBuild build){
@@ -47,6 +64,10 @@ public class UserPcBuildController {
         return userPcBuildDao.updateUserPcBuild(build);
     }
 
+    /**
+     * Delete a pc build
+     * @param id id to delete
+     */
     @PreAuthorize("hasAuthority('ADMIN')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{id}")

@@ -16,38 +16,54 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+
+/**
+ * Cpu cooler data access object
+ */
 @Component
 public class CpuCoolerDao {
+    /**
+     * JDBC template
+     */
     private final JdbcTemplate jdbcTemplate;
 
+    /**
+     * Constructor
+     * @param dataSource data source
+     */
     public CpuCoolerDao(DataSource dataSource){
         jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
+    /**
+     * Get a cpu cooler using id
+     * @param coolerId cpu cooler id
+     * @return cpu cooler requested
+     */
     public CpuCooler getCoolerById(int coolerId){
         try{
             return jdbcTemplate.queryForObject("select * from cpu_cooler where cpu_cooler_id = ?;", this::mapRowToCooler, coolerId);
         }catch (EmptyResultDataAccessException e){
             return null;
         }
-//        SqlRowSet results = jdbcTemplate.queryForRowSet("select * from cpu_cooler where cpu_cooler_id = ?;", coolerId);
-//        if (results.next()){
-//            return mapRowToCooler(results);
-//        }
-//        return null;
     }
 
+    /**
+     * Get all cpu coolers
+     * @return list of cpu coolers
+     */
     public List<CpuCooler> getAllCoolers(){
         return jdbcTemplate.query("select * from cpu_cooler;", this::mapRowToCooler);
-//        List<CpuCooler> coolers = new ArrayList<>();
-//        SqlRowSet results = jdbcTemplate.queryForRowSet("select * from cpu_cooler;");
-//        while (results.next()){
-//            coolers.add(mapRowToCooler(results));
-//        }
-//        return coolers;
     }
 
+    /**
+     * Gets all cpu coolers compatible with case
+     * @param caseLength length of case
+     * @param caseWidth width of case
+     * @return list of compatible cpu coolers
+     */
     public List<CpuCoolerWithBrand> getCompatibleCoolers(int caseLength, int caseWidth){
+        //Not used in api, will be used in future
         List<CpuCoolerWithBrand> coolers = new ArrayList<>();
         String sql = "select cpu_cooler_id, brand_name, product_name, cooler_type, color, rgb, size_mm, price\n" +
                 "from cpu_cooler\n" +
@@ -69,6 +85,11 @@ public class CpuCoolerDao {
         return coolers;
     }
 
+    /**
+     * Create a cpu cooler
+     * @param newCooler cpu cooler
+     * @return created cpu cooler
+     */
     public CpuCooler createCpuCooler(CpuCooler newCooler){
         try{
             int coolerId = jdbcTemplate.queryForObject("insert into cpu_cooler (brand_id, product_name, model, cooler_type, " +
@@ -82,6 +103,12 @@ public class CpuCoolerDao {
             throw new DaoException("Error creating cooler", e);
         }
     }
+
+    /**
+     * Update a cpu cooler
+     * @param cpuCooler cpu cooler
+     * @return updated cpu cooler
+     */
     public CpuCooler updateCooler(CpuCooler cpuCooler){
         CpuCooler cooler = null;
         try{
@@ -100,6 +127,12 @@ public class CpuCoolerDao {
             throw new DaoException("Error updating cooler. ", e);
         }
     }
+
+    /**
+     * Delete a cpu cooler
+     * @param coolerId id to delete
+     * @return deleted cpu cooler
+     */
     public int deleteCooler(int coolerId){
         int numRows = 0;
         try{
@@ -112,6 +145,13 @@ public class CpuCoolerDao {
         return numRows;
     }
 
+    /**
+     * Cpu cooler mapper
+     * @param row row
+     * @param rowNumber row number
+     * @return Mapped cpu cooler
+     * @throws SQLException sql exception
+     */
     public CpuCooler mapRowToCooler(ResultSet row, int rowNumber) throws SQLException {
         CpuCooler cooler = new CpuCooler();
         cooler.setCpuCoolerId(row.getInt("cpu_cooler_id"));

@@ -1,7 +1,6 @@
 package com.pcBuilder.daos;
 
 import com.pcBuilder.DaoException;
-import com.pcBuilder.models.CpuCooler;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -14,18 +13,31 @@ import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
 
+
+/**
+ * Fan data access object
+ */
 @Component
 public class FanDao {
+    /**
+     * JDBC template
+     */
     private final JdbcTemplate jdbcTemplate;
 
+    /**
+     * Constructor
+     * @param dataSource data source
+     */
     public FanDao(DataSource dataSource){
         jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
     /**
-     *Gets all fans and lists with brand name instead of brand id
+     * Get all fans with brand name
+     * @return list of fans with brand names
      */
     public List<FanWithBrand> getFans(){
+        //Not used in api, will be used in future
         List<FanWithBrand> fans = new ArrayList<>();
         String sql = "select fan_id, brand_name, product_name, num_of_fans, color, rgb, size_mm, price\n" +
                 "from fans\n" +
@@ -46,6 +58,10 @@ public class FanDao {
         return fans;
     }
 
+    /**
+     * Get all fans
+     * @return list of fans
+     */
     public List<Fans> getFansNoBrandName(){
         List<Fans> fans = new ArrayList<>();
         SqlRowSet rowSet = jdbcTemplate.queryForRowSet("select * from fans");
@@ -65,6 +81,11 @@ public class FanDao {
         return fans;
     }
 
+    /**
+     * Get a fan using id
+     * @param fanId fan id
+     * @return fan requested
+     */
     public Fans getFanById(int fanId){
         SqlRowSet results = jdbcTemplate.queryForRowSet("select * from fans where fan_id = ?;", fanId);
         if (results.next()){
@@ -74,6 +95,11 @@ public class FanDao {
     }
 
 
+    /**
+     * Create a fan
+     * @param newFan fan
+     * @return created fan
+     */
     public Fans createFan(Fans newFan){
         try{
             int fanId = jdbcTemplate.queryForObject("insert into fans (brand_id, product_name, model, size_mm, " +
@@ -87,6 +113,12 @@ public class FanDao {
             throw new DaoException("Error creating brand", e);
         }
     }
+
+    /**
+     * Update a fan
+     * @param fanToUpdate fan
+     * @return updated fan
+     */
     public Fans updateFan(Fans fanToUpdate){
         Fans fan = null;
         try{
@@ -105,6 +137,12 @@ public class FanDao {
             throw new DaoException("Error updating brand. ", e);
         }
     }
+
+    /**
+     * Delete a fan
+     * @param fanId id to delete
+     * @return deleted fan
+     */
     public int deleteFan(int fanId){
         int numRows = 0;
         try{
@@ -117,6 +155,11 @@ public class FanDao {
         return numRows;
     }
 
+    /**
+     * Fan mapper
+     * @param rowSet rowset
+     * @return mapped fan
+     */
     public Fans mapRowToFan(SqlRowSet rowSet){
         Fans fan = new Fans();
         fan.setFanId(rowSet.getInt("fan_id"));

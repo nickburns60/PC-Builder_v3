@@ -1,7 +1,6 @@
 package com.pcBuilder.daos;
 
 import com.pcBuilder.DaoException;
-import com.pcBuilder.models.Motherboard;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -14,15 +13,32 @@ import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
 
+
+/**
+ * Power supply data access object
+ */
 @Component
 public class PowerSupplyDao {
+    /**
+     * JDBC template
+     */
     private final JdbcTemplate jdbcTemplate;
 
+    /**
+     * Constructor
+     * @param dataSource data source
+     */
     public PowerSupplyDao(DataSource dataSource){
         jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
+    /**
+     * Get all power supplies compatible with graphics card
+     * @param wattageId wattage requirement of graphics card
+     * @return list of compatible power supplies
+     */
     public List<PowerSupplyWithBrandWattage> getCompatiblePsuByWattage(int wattageId) {
+        //Not used in api, will be used in future
         List<PowerSupplyWithBrandWattage> compatiblePsus = new ArrayList<>();
         String sql = "select psu_id, brand_name, product_name, wattage, cable_type, energy_efficiency, price, psu.psu_wattage_id as psu_wattage_num\n" +
                 "from psu\n" +
@@ -46,6 +62,11 @@ public class PowerSupplyDao {
         return compatiblePsus;
     }
 
+    /**
+     * Get a power supply using id
+     * @param psuId power supply id
+     * @return power supply requested
+     */
     public PowerSupply getPowerSupplyById(int psuId){
         SqlRowSet results = jdbcTemplate.queryForRowSet("select * from psu where psu_id = ?;", psuId);
         if (results.next()){
@@ -54,6 +75,10 @@ public class PowerSupplyDao {
         return null;
     }
 
+    /**
+     * Get all power supplies
+     * @return list of power supplies
+     */
     public List<PowerSupply> getAllPsus(){
         List<PowerSupply> powerSupplies = new ArrayList<>();
         SqlRowSet rowSet = jdbcTemplate.queryForRowSet("select * from psu");
@@ -63,7 +88,11 @@ public class PowerSupplyDao {
         return powerSupplies;
     }
 
-
+    /**
+     * Create a power supply
+     * @param newPsu power supply
+     * @return created power supply
+     */
     public PowerSupply createPsu(PowerSupply newPsu){
         try{
             int psuId = jdbcTemplate.queryForObject("insert into psu (psu_wattage_id, brand_id, product_name, model, cable_type, energy_efficiency, price) " +
@@ -77,6 +106,11 @@ public class PowerSupplyDao {
         }
     }
 
+    /**
+     * Update a power supply
+     * @param psuToUpdate power supply
+     * @return updated power supply
+     */
     public PowerSupply updatePsu(PowerSupply psuToUpdate){
         PowerSupply psu = null;
         try{
@@ -96,6 +130,10 @@ public class PowerSupplyDao {
         }
     }
 
+    /**
+     * Delete a power supply
+     * @param id id to delete
+     */
     public void deletePsu(int id){
         try{
             jdbcTemplate.update("delete from psu where psu_id = ?;", id);
@@ -106,6 +144,11 @@ public class PowerSupplyDao {
         }
     }
 
+    /**
+     * Power supply mapper
+     * @param rowSet rowset
+     * @return mapped power supply
+     */
     public PowerSupply mapRowToPowerSupply(SqlRowSet rowSet){
         PowerSupply powerSupply = new PowerSupply();
         powerSupply.setPsuId(rowSet.getInt("psu_id"));

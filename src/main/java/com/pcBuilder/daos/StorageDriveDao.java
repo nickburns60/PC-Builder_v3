@@ -3,7 +3,6 @@ package com.pcBuilder.daos;
 import com.pcBuilder.DaoException;
 import com.pcBuilder.models.StorageDrive;
 import com.pcBuilder.viewmodels.StorageDriveWithBrand;
-import com.pcBuilder.models.StorageDrive;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -14,16 +13,32 @@ import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
 
+
+/**
+ * Storage drive data access object
+ */
 @Component
 public class StorageDriveDao {
+    /**
+     * JDBC template
+     */
     private final JdbcTemplate jdbcTemplate;
 
+    /**
+     * Constructor
+     * @param dataSource data source
+     */
     public StorageDriveDao(DataSource dataSource){
         jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
 
+    /**
+     * Get all storage drives and their brand names
+     * @return list of storage drives with brand names
+     */
     public List<StorageDriveWithBrand> getStorageDrivesWithBrands(){
+        //Not used in api, will be used in future
         List<StorageDriveWithBrand> storageDrives = new ArrayList<>();
         String sql = "select storage_drive_id, brand_name, product_name, capacity_gb, form_factor, price\n" +
                 "from storage_drive\n" +
@@ -42,6 +57,11 @@ public class StorageDriveDao {
         return storageDrives;
     }
 
+    /**
+     * Get a storage drive with id
+     * @param storageDriveId storage drive id
+     * @return storage drive requested
+     */
     public StorageDrive getStorageDriveById(int storageDriveId){
         SqlRowSet results = jdbcTemplate.queryForRowSet("select * from storage_drive where storage_drive_id = ?;", storageDriveId);
         if (results.next()){
@@ -50,6 +70,10 @@ public class StorageDriveDao {
         return null;
     }
 
+    /**
+     * Get all storage drives
+     * @return list of storage drives
+     */
     public List<StorageDrive> getAllStorageDrives(){
         List<StorageDrive> storageDrives = new ArrayList<>();
         SqlRowSet rowSet = jdbcTemplate.queryForRowSet("select * from storage_drive");
@@ -60,6 +84,11 @@ public class StorageDriveDao {
     }
 
 
+    /**
+     * Create a storage drive
+     * @param newStoragedrive storage drive
+     * @return created storage drive
+     */
     public StorageDrive createStorageDrive(StorageDrive newStoragedrive){
         try{
             int storageDriveId = jdbcTemplate.queryForObject("insert into storage_drive (brand_id, product_name, model, capacity_gb, form_factor, price) " +
@@ -73,6 +102,11 @@ public class StorageDriveDao {
         }
     }
 
+    /**
+     * Update a storage drive
+     * @param storageDriveToUpdate storage drive
+     * @return updated storage drive
+     */
     public StorageDrive updateStorageDrive(StorageDrive storageDriveToUpdate){
         StorageDrive storageDrive = null;
         try{
@@ -91,6 +125,10 @@ public class StorageDriveDao {
         }
     }
 
+    /**
+     * Delete a storage drive
+     * @param id id to delete
+     */
     public void deleteStorageDrive(int id){
         try{
             jdbcTemplate.update("delete from storage_drive where storage_drive_id = ?;", id);
@@ -101,6 +139,11 @@ public class StorageDriveDao {
         }
     }
 
+    /**
+     * Storage drive mapper
+     * @param rowSet rowset
+     * @return mapped storage drive
+     */
     public StorageDrive mapRowToStorageDrive(SqlRowSet rowSet){
         StorageDrive storageDrive = new StorageDrive();
         storageDrive.setStorageDriveId(rowSet.getInt("storage_drive_id"));

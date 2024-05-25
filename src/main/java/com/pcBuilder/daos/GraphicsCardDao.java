@@ -1,9 +1,7 @@
 package com.pcBuilder.daos;
 
 import com.pcBuilder.DaoException;
-import com.pcBuilder.models.UserPcBuild;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
@@ -15,14 +13,29 @@ import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
 
+
+/**
+ * Graphics card data access object
+ */
 @Component
 public class GraphicsCardDao {
+    /**
+     * JDBC template
+     */
     private final JdbcTemplate jdbcTemplate;
 
+    /**
+     * Constructor
+     * @param dataSource data source
+     */
     public GraphicsCardDao(DataSource dataSource){
         jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
+    /**
+     * Get all graphic cards
+     * @return list of graphic cards
+     */
     public List<GraphicsCard> getAllGpus(){
         List<GraphicsCard> graphicsCards = new ArrayList<>();
         SqlRowSet results = jdbcTemplate.queryForRowSet("select * from graphics_card");
@@ -32,7 +45,12 @@ public class GraphicsCardDao {
         return graphicsCards;
     }
 
+    /**
+     * Get all graphics cards and brand name
+     * @return list of graphics cards and their brand names
+     */
     public List<GPUWithBrandWattage> getAllGpusWithFullInfoDisplayed(){
+        //Not used in api, will be used in future
         List<GPUWithBrandWattage> gpuWithBrandWattages = new ArrayList<>();
         String sql = "select graphics_card_id, brand_name, graphics_card.product_name, wattage, graphics_card.price\n" +
                 "from graphics_card\n" +
@@ -51,6 +69,11 @@ public class GraphicsCardDao {
         return gpuWithBrandWattages;
     }
 
+    /**
+     * Get a graphics card using id
+     * @param gpuId graphics card id
+     * @return graphics card requested
+     */
     public GraphicsCard getGraphicsCardById(int gpuId){
         SqlRowSet results = jdbcTemplate.queryForRowSet("select * from graphics_card where graphics_card_id = ?;", gpuId);
         if(results.next()){
@@ -59,6 +82,11 @@ public class GraphicsCardDao {
         return null;
     }
 
+    /**
+     * Create a graphics card
+     * @param newGpu graphics card
+     * @return created graphics card
+     */
     public GraphicsCard createGpu(GraphicsCard newGpu){
         try{
             int gpuId = jdbcTemplate.queryForObject("insert into graphics_card (brand_id, product_name, model, psu_wattage_id, price) " +
@@ -71,6 +99,11 @@ public class GraphicsCardDao {
         }
     }
 
+    /**
+     * Update a graphics card
+     * @param gpuToUpdate graphics card
+     * @return updated graphics card
+     */
     public GraphicsCard updateGpu(GraphicsCard gpuToUpdate){
         GraphicsCard gpu = null;
         try{
@@ -89,6 +122,10 @@ public class GraphicsCardDao {
         }
     }
 
+    /**
+     * Delete a graphics card
+     * @param id id to delete
+     */
     public void deleteGpu(int id){
         try{
             jdbcTemplate.update("delete from graphics_card where graphics_card_id = ?;", id);
@@ -99,6 +136,11 @@ public class GraphicsCardDao {
         }
     }
 
+    /**
+     * Graphics card mapper
+     * @param rowSet rowset
+     * @return Mapped graphics card
+     */
     public GraphicsCard mapRowToGpu(SqlRowSet rowSet){
         GraphicsCard graphicsCard = new GraphicsCard();
         graphicsCard.setGraphicsCardId(rowSet.getInt("graphics_card_id"));

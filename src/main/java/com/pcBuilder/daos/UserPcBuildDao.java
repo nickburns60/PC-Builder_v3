@@ -13,6 +13,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+
+/**
+ * Pc build data access object that is not being used for this api
+ */
 @Component
 public class UserPcBuildDao {
     private final JdbcTemplate jdbcTemplate;
@@ -27,20 +31,9 @@ public class UserPcBuildDao {
         }catch (EmptyResultDataAccessException e){
             return null;
         }
-//        SqlRowSet results = jdbcTemplate.queryForRowSet("select * from user_pc_build where pc_id = ?;", id);
-//        if(results.next()){
-//            return mapRowToUserPcBuild(results);
-//        }
-//        return null;
     }
     public List<UserPcBuild> getAllUserPcBuilds(){
         return jdbcTemplate.query("select * from user_pc_build;", this::mapRowToUserPcBuild);
-//        List<UserPcBuild> userPcBuilds = new ArrayList<>();
-//        SqlRowSet results = jdbcTemplate.queryForRowSet("select * from user_pc_build;");
-//        while (results.next()){
-//            userPcBuilds.add(mapRowToUserPcBuild(results));
-//        }
-//        return userPcBuilds;
     }
 
     public UserPcBuild createUserPcBuild(UserPcBuild newBuild){
